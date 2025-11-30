@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg
+  width="640" height="360"
+  viewBox="0 0 640 360"
+  xmlns="http://www.w3.org/2000/svg"
+  role="img" aria-labelledby="title desc">
+  <title id="title">MarajTechnologies logo</title>
+  <desc id="desc">Stylized gradient M with motion streaks above the wordmark "MARAJ TECHNOLOGIES".</desc>
+
+  <!-- Defs: gradient and glow -->
+  <defs>
+    <linearGradient id="gradM" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#6A00F4"/>
+      <stop offset="50%" stop-color="#C7007E"/>
+      <stop offset="100%" stop-color="#FF6A00"/>
+    </linearGradient>
+    <linearGradient id="gradStreaks" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="rgba(106,0,244,0.85)"/>
+      <stop offset="50%" stop-color="rgba(199,0,126,0.75)"/>
+      <stop offset="100%" stop-color="rgba(255,106,0,0.0)"/>
+    </linearGradient>
+    <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="3" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Safe area guide (hidden) -->
+  <rect x="0" y="0" width="640" height="360" fill="none"/>
+
+  <!-- Logo mark: stylized M -->
+  <g transform="translate(120,60)">
+    <!-- Motion streaks (rightward, fading) -->
+    <g filter="url(#softGlow)">
+      <path d="M340,30 C390,25 430,25 480,28 L540,30"
+            fill="none" stroke="url(#gradStreaks)" stroke-width="10" stroke-linecap="round"/>
+      <path d="M340,60 C395,55 435,55 485,58 L560,60"
+            fill="none" stroke="url(#gradStreaks)" stroke-width="8" stroke-linecap="round"/>
+      <path d="M340,90 C400,85 440,85 490,88 L565,90"
+            fill="none" stroke="url(#gradStreaks)" stroke-width="6" stroke-linecap="round"/>
+    </g>
+
+    <!-- Core M shape -->
+    <path
+      d="M40,170
+         C40,95 80,50 120,50
+         C160,50 190,88 200,120
+         L220,180
+         L240,120
+         C250,88 280,50 320,50
+         C360,50 400,95 400,170
+         L360,170
+         C360,115 340,90 320,90
+         C300,90 285,110 276,140
+         L250,230
+         L170,230
+         L144,140
+         C135,110 120,90 100,90
+         C80,90 60,115 60,170
+         Z"
+      fill="url(#gradM)"/>
+
+    <!-- Subtle base shadow -->
+    <ellipse cx="220" cy="250" rx="140" ry="12" fill="rgba(0,0,0,0.08)"/>
+  </g>
+
+  <!-- Wordmark -->
+  <g transform="translate(120,260)">
+    <!-- MARAJ -->
+    <text x="0" y="0"
+          font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif"
+          font-size="48" font-weight="700"
+          fill="#0C1847" letter-spacing="1.5">MARAJ</text>
+    <!-- TECHNOLOGIES -->
+    <text x="0" y="34"
+          font-family="Inter,Segoe UI,Helvetica,Arial,sans-serif"
+          font-size="24" font-weight="600"
+          fill="#4A5677" letter-spacing="3">TECHNOLOGIES</text>
+  </g>
+</svg>
+

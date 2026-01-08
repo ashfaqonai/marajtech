@@ -202,16 +202,22 @@
             height: 60px;
             display: flex;
             align-items: center;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 8px 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
         }
         
         .logo-container img {
             height: 100%;
             width: auto;
+            filter: brightness(1.1) contrast(1.1);
         }
         
         @media (max-width: 640px) {
             .logo-container {
                 height: 45px;
+                padding: 6px 10px;
             }
         }
 

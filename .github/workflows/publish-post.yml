@@ -1,0 +1,153 @@
+name: Publish next blog post
+
+on:
+  schedule:
+    # 16:20 UTC = 10:20 CST / 11:20 CDT — one post per day
+    - cron: '20 16 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    outputs:
+      published: ${{ steps.pub.outputs.published }}
+      slug: ${{ steps.pub.outputs.slug }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Publish oldest pending post
+        id: pub
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          PENDING_DIR="_posts/pending"
+          POSTS_DIR="_posts"
+
+          # Find the oldest pending JSON file (alphabetical = oldest)
+          NEXT=$(ls -1 "$PENDING_DIR"/*.json 2>/dev/null | sort | head -n1 || true)
+
+          if [ -z "$NEXT" ]; then
+            echo "No pending posts found. Nothing to publish."
+            echo "published=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          BASENAME=$(basename "$NEXT")
+          DATE=$(date -u +%Y-%m-%d)
+          SLUG="${BASENAME%.json}"
+          DEST="${POSTS_DIR}/${DATE}_${SLUG}.json"
+
+          echo "Publishing: $BASENAME"
+          echo "  From: $NEXT"
+          echo "  To:   $DEST"
+          echo "  Date: $DATE"
+
+          # Move from pending to _posts with date prefix
+          mv "$NEXT" "$DEST"
+
+          echo "published=true" >> "$GITHUB_OUTPUT"
+          echo "slug=${SLUG}" >> "$GITHUB_OUTPUT"
+          echo "Remaining pending posts: $(ls -1 "$PENDING_DIR"/*.json 2>/dev/null | wc -l)"
+
+      - name: Commit and push
+        if: steps.pub.outputs.published == 'true'
+        shell: bash
+        run: |
+          set -e
+          git config user.name "marajtech-bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add _posts/
+          git commit -m "blog: publish scheduled post"
+          git push
+          echo "Committed and pushed."
+
+  # Call the deploy workflow to build and publish the site.
+  deploy:
+    needs: publish
+    if: needs.publish.outputs.published == 'true'
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    uses: ./.github/workflows/static.yml
+    secrets: inherit
+
+  # Notify search engines about the new post
+  notify-search-engines:
+    needs: [publish, deploy]
+    if: needs.publish.outputs.published == 'true'
+    runs-on: ubuntu-latest
+    env:
+      GOOGLE_INDEXING_KEY: ${{ secrets.GOOGLE_INDEXING_KEY }}
+    steps:
+      - name: Checkout (for Google Indexing script)
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Notify via IndexNow (Bing, Yandex, Naver, Seznam)
+        run: |
+          SITE_URL="https://www.marajtech.com"
+          INDEXNOW_KEY="${{ secrets.INDEXNOW_KEY }}"
+          SLUG="${{ needs.publish.outputs.slug }}"
+
+          NEW_POST_URL="${SITE_URL}/blog/${SLUG}.html"
+          SITEMAP_URL="${SITE_URL}/sitemap.xml"
+          BLOG_URL="${SITE_URL}/blog.html"
+
+          if [ -z "$INDEXNOW_KEY" ]; then
+            echo "INDEXNOW_KEY not set — skipping IndexNow notification."
+            exit 0
+          fi
+
+          echo "Submitting URLs to IndexNow..."
+          echo "  Post: ${NEW_POST_URL}"
+          echo "  Blog: ${BLOG_URL}"
+          echo "  Sitemap: ${SITEMAP_URL}"
+
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST "https://api.indexnow.org/indexnow" \
+            -H "Content-Type: application/json" \
+            -d "{
+              \"host\": \"www.marajtech.com\",
+              \"key\": \"${INDEXNOW_KEY}\",
+              \"keyLocation\": \"${SITE_URL}/${INDEXNOW_KEY}.txt\",
+              \"urlList\": [
+                \"${NEW_POST_URL}\",
+                \"${BLOG_URL}\",
+                \"${SITEMAP_URL}\"
+              ]
+            }")
+
+          echo "IndexNow response: HTTP ${HTTP_STATUS}"
+
+          if [ "$HTTP_STATUS" -eq 200 ] || [ "$HTTP_STATUS" -eq 202 ]; then
+            echo "IndexNow submission successful!"
+          else
+            echo "IndexNow submission returned unexpected status (non-fatal)."
+          fi
+
+      - name: Ping Bing with updated sitemap
+        run: |
+          echo "Pinging Bing with sitemap..."
+          curl -s "https://www.bing.com/ping?sitemap=https://www.marajtech.com/sitemap.xml" || true
+          echo "Done."
+
+      - name: Google Indexing API (if configured)
+        if: env.GOOGLE_INDEXING_KEY != ''
+        run: |
+          SLUG="${{ needs.publish.outputs.slug }}"
+          NEW_POST_URL="https://www.marajtech.com/blog/${SLUG}.html"
+          node scripts/notify-google.js "${NEW_POST_URL}" URL_UPDATED

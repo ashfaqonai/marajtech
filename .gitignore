@@ -1,0 +1,5 @@
+# Dependencies
+scripts/node_modules/
+
+# Generated blog files (rebuilt by CI on deploy)
+blog/

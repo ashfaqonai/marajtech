@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link rel="icon" type="image/x-icon" href="marajtech.ico" />
+    <link rel="shortcut icon" type="image/x-icon" href="marajtech.ico" />
+    <link rel="apple-touch-icon" href="marajtech.ico" />
+
+    <title>Blog Post | MarajTech</title>
+    <meta name="description" content="Read the latest insights from MarajTech" />
+    <meta name="robots" content="index, follow" />
+
+    <meta property="og:type" content="article" />
+    <meta property="og:url" content="https://www.marajtech.com/blog-post.html" />
+    <meta property="og:title" content="Blog Post | MarajTech" />
+    <meta property="og:description" content="Read the latest insights from MarajTech" />
+    <meta property="og:image" content="https://www.marajtech.com/logo-dark.svg" />
+    <meta property="og:site_name" content="MarajTech" />
+    <meta property="og:locale" content="en_US" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://www.marajtech.com/blog-post.html" />
+    <meta name="twitter:title" content="Blog Post | MarajTech" />
+    <meta name="twitter:description" content="Read the latest insights from MarajTech" />
+    <meta name="twitter:image" content="https://www.marajtech.com/logo-dark.svg" />
+
+    <link rel="canonical" href="https://www.marajtech.com/blog-post.html" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: #FFFFFF;
+            color: #0F172A;
+            line-height: 1.6;
+        }
+        .logo-container { height: 60px; display: flex; align-items: center; }
+        .logo-container img { height: 100%; width: auto; }
+    </style>
+</head>
+<body class="antialiased">
+
+    <!-- Header -->
+    <header class="bg-white border-b border-gray-200 text-gray-800 p-4 shadow-sm sticky top-0 z-40">
+        <div class="container mx-auto flex flex-col sm:flex-row justify-between items-center py-3">
+            <a href="index.html" class="logo-container mb-4 sm:mb-0 rounded-md p-2 hover:bg-gray-50 transition duration-300">
+                <img src="logo-dark.svg" alt="MarajTech Logo" class="h-full w-auto" />
+            </a>
+            <nav class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-lg font-medium">
+                <a href="index.html#about" class="text-gray-800 hover:text-[#1E90FF] transition duration-300 px-3 py-2 rounded-md hover:bg-gray-50">About</a>
+                <a href="index.html#services" class="text-gray-800 hover:text-[#1E90FF] transition duration-300 px-3 py-2 rounded-md hover:bg-gray-50">Services</a>
+                <a href="blog.html" class="text-gray-800 hover:text-[#1E90FF] transition duration-300 px-3 py-2 rounded-md hover:bg-gray-50">Blog</a>
+                <a href="index.html#contact" class="bg-[#1E90FF] hover:bg-[#0066CC] text-white px-6 py-2 rounded-full font-semibold transition duration-300">Contact Us</a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Blog Post Content -->
+    <section class="py-16 px-4 bg-white">
+        <div class="container mx-auto max-w-4xl">
+            <div class="mb-6">
+                <a href="blog.html" class="text-[#1E90FF] font-semibold hover:underline inline-flex items-center gap-2">
+                    &larr; Back to Blog
+                </a>
+            </div>
+            <div id="blogPostContent" class="bg-white border border-gray-200 p-8 md:p-12 rounded-2xl shadow-sm">
+                <div class="text-center">
+                    <p class="text-gray-600">Loading blog post...</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 text-gray-700 py-12 px-4">
+        <div class="container mx-auto max-w-7xl">
+            <div class="flex flex-col md:flex-row justify-between items-center mb-8">
+                <div class="logo-container mb-6 md:mb-0">
+                    <img src="logo-dark.svg" alt="MarajTech Logo" class="h-12 w-auto" />
+                </div>
+                <div class="flex flex-wrap justify-center gap-6">
+                    <a href="blog.html" class="text-gray-700 hover:text-[#1E90FF] transition duration-300">Blog</a>
+                    <a href="index.html#services" class="text-gray-700 hover:text-[#1E90FF] transition duration-300">Services</a>
+                    <a href="index.html#contact" class="text-gray-700 hover:text-[#1E90FF] transition duration-300">Contact</a>
+                </div>
+            </div>
+            <p class="text-center text-gray-600 text-sm">&copy; 2025 MarajTech. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const slug = urlParams.get('slug');
+
+        if (slug) {
+            window.location.replace(`/blog/${slug}.html`);
+        } else {
+            document.getElementById('blogPostContent').innerHTML = `
+                <div class="text-center">
+                    <h1 class="text-3xl font-bold mb-4 text-gray-900">Post Not Found</h1>
+                    <p class="text-gray-600 mb-6">The blog post you're looking for doesn't exist.</p>
+                    <a href="blog.html" class="text-[#1E90FF] font-semibold hover:underline">&larr; Back to Blog</a>
+                </div>
+            `;
+        }
+    </script>
+</body>
+</html>

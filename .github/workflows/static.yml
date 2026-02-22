@@ -9,6 +9,9 @@ on:
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
+  # Allows other workflows (e.g. publish-post) to call this workflow
+  workflow_call:
+
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
@@ -31,6 +34,33 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Build blog (generate static pages, posts.json, sitemap)
+        env:
+          PEXELS_API_KEY: ${{ secrets.PEXELS_API_KEY }}
+        run: |
+          cd scripts && npm install && cd ..
+          node scripts/build-blog.js
+      - name: Build Tailwind CSS (replace CDN with optimized CSS)
+        run: |
+          npm install --no-save tailwindcss@3
+          mkdir -p styles
+          npx tailwindcss -c tailwind.config.js -i styles/input.css -o styles/tailwind.min.css --minify
+          echo "Built Tailwind CSS: $(wc -c < styles/tailwind.min.css) bytes"
+          # Replace CDN script tag with CSS link in all HTML files
+          find . -name '*.html' -not -path './node_modules/*' -not -path './scripts/*' \
+            -exec sed -i 's|<script src="https://cdn.tailwindcss.com"></script>|<link rel="stylesheet" href="/styles/tailwind.min.css">|g' {} \;
+          find . -name '*.html' -not -path './node_modules/*' -not -path './scripts/*' \
+            -exec sed -i 's|<script src="https://cdn.tailwindcss.com" defer></script>|<link rel="stylesheet" href="/styles/tailwind.min.css">|g' {} \;
+          echo "Replaced Tailwind CDN tags in all HTML files"
+      - name: Inject admin password from secret
+        run: |
+          sed -i "s/__ADMIN_PASSWORD_PLACEHOLDER__/${{ secrets.ADMIN_PASSWORD }}/g" admin-config.js
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact

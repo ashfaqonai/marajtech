@@ -1,4 +1,9 @@
 User-agent: *
 Allow: /
+Disallow: /admin.html
+Disallow: /admin-config.js
+Disallow: /blog-post.html
+Disallow: /CNAME
+Disallow: /CNAME.txt
 
 Sitemap: https://www.marajtech.com/sitemap.xml
